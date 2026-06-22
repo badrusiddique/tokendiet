@@ -22,32 +22,36 @@ RESULTS = Path(__file__).parent / "RESULTS.md"
 OPUS = DEFAULT_PRICES[0]  # headline $ uses the most expensive model
 
 
-def _run_one(pdf: Path):
-    result = convert(pdf)
-    s = build_savings(pdf.name, result.markdown, result.page_dims, result.warnings)
+SUPPORTED = ("*.pdf", "*.html", "*.htm")
+
+
+def _run_one(path: Path):
+    result = convert(path)
+    s = build_savings(result)
+    s.source = path.name  # display the bare filename in the table
     return s
 
 
 def main(argv: list[str] | None = None) -> int:
     generated_at = argv[0] if argv else datetime.now(timezone.utc).strftime("%Y-%m-%d")
-    pdfs = sorted(CORPUS.glob("*.pdf"))
-    if not pdfs:
-        print("No PDFs in corpus/. Run: python benchmarks/make_corpus.py", file=sys.stderr)
+    docs = sorted(p for pat in SUPPORTED for p in CORPUS.glob(pat))
+    if not docs:
+        print("No documents in corpus/. Run: python benchmarks/make_corpus.py", file=sys.stderr)
         return 1
 
     rows = []
     tot_before = tot_after = 0
-    for pdf in pdfs:
+    for doc in docs:
         try:
-            s = _run_one(pdf)
+            s = _run_one(doc)
         except TokendietError as exc:
-            print(f"! {pdf.name}: {exc}", file=sys.stderr)
+            print(f"! {doc.name}: {exc}", file=sys.stderr)
             continue
         tot_before += s.before_total
         tot_after += s.after_tokens
         rows.append(s)
         print(
-            f"{pdf.name:24} pages={s.pages:>3}  native={s.before_total:>7,}  "
+            f"{doc.name:26} pages={s.pages:>3}  native={s.before_total:>7,}  "
             f"md={s.after_tokens:>6,}  saved={s.pct_saved:>4.0f}%"
         )
 
@@ -61,7 +65,7 @@ def main(argv: list[str] | None = None) -> int:
         "Numbers are **estimates** (tiktoken proxy + documented image-token heuristic); "
         "regenerate locally to reproduce._",
         "",
-        "| Document | Pages | Native PDF (tok) | Markdown (tok) | Saved | % saved | "
+        "| Document | Pages | Native (tok) | Markdown (tok) | Saved | % saved | "
         "$ saved/call (Opus) |",
         "|---|--:|--:|--:|--:|--:|--:|",
     ]
@@ -80,14 +84,14 @@ def main(argv: list[str] | None = None) -> int:
         "",
         "## Method",
         "",
-        "- **Native PDF tokens** = extracted text tokens + per-page image tokens. Claude "
+        "- **PDF native tokens** = extracted text tokens + per-page image tokens. Claude "
         "renders each page to an image (capped at 1568px longest edge) and tokenizes it via "
-        "`tokens ≈ (w·h)/750`, *on top of* the text.",
+        "`tokens ≈ (w·h)/750`, *on top of* the text. The win is the eliminated image tokens.",
+        "- **HTML native tokens** = tokens of the raw markup you'd otherwise feed Claude "
+        "(tags, attributes, inline scripts and styles). The win is shedding that markup.",
         "- **Markdown tokens** = tokens of the converted Markdown (text only).",
         "- **Text counting** uses `tiktoken` `cl100k_base` as a proxy for Claude's tokenizer "
         "(within ~10-20% for English prose).",
-        "- The savings come entirely from eliminating the per-page image tokens — the real, "
-        "honest mechanism.",
         "",
         "## Caveats",
         "",
@@ -96,8 +100,11 @@ def main(argv: list[str] | None = None) -> int:
         "do not apply.",
         "- Scanned/image-only PDFs have little text to extract; Tokendiet warns and recommends "
         "native or OCR.",
-        "- Generated docs (`prose.pdf`, `report.pdf`) are reproducible; `paper-attention.pdf` "
-        "is downloaded at runtime and not redistributed.",
+        "- HTML conversion strips scripts/styles/head but keeps structural content, so it never "
+        "silently drops real text.",
+        "- Generated docs (`prose.pdf`, `report.pdf`, `article.html`) are reproducible; "
+        "`paper-attention.pdf` and `wikipedia-markdown.html` are downloaded at runtime and not "
+        "redistributed.",
     ]
     RESULTS.write_text("\n".join(lines) + "\n", encoding="utf-8")
     print(f"\nTOTAL: {tot_before:,} -> {tot_after:,} tokens  ({pct:.0f}% saved)")

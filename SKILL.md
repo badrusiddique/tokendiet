@@ -1,24 +1,26 @@
 ---
 name: tokendiet
 description: >-
-  Convert PDFs to lean Markdown before reading them, to save Claude tokens and money.
-  Use when the user references, attaches, uploads, or asks to read / analyze / summarize /
-  extract from a PDF file (or mentions a .pdf path), and the goal is the document's TEXT
-  rather than its visual layout. Also use when the user asks how many tokens a PDF will
-  cost, or how to reduce token usage from documents. Do NOT use when the user needs Claude
-  to SEE the visuals (charts, diagrams, scans, complex layouts) — read those natively.
+  Convert PDFs, HTML files, and web-page URLs to lean Markdown before reading them, to save
+  Claude tokens and money. Use when the user references, attaches, uploads, or asks to read /
+  analyze / summarize / extract from a PDF or HTML file (or a .pdf/.html path), or gives a
+  web-page URL to read, and the goal is the TEXT rather than the visual layout. Also use when
+  the user asks how many tokens a document will cost, or how to reduce token usage from
+  documents/web pages. Do NOT use when the user needs Claude to SEE the visuals (charts,
+  diagrams, scans, complex layouts) — read those natively.
 ---
 
-# Tokendiet — read PDFs cheaply
+# Tokendiet — read documents cheaply
 
 Claude pays for a PDF twice: the extracted **text** *and* a rendered **image of every
-page**. For text-heavy documents those page images are wasted tokens. Tokendiet converts
-the PDF to Markdown so you read the text-only version, and reports what was saved.
+page**. Web pages are worse — raw HTML is mostly markup (tags, scripts, styles). For
+text-heavy content those extra tokens are waste. Tokendiet converts to Markdown so you read
+the lean text-only version, and reports what was saved. Supports **PDF, HTML files, and URLs**.
 
 ## When to use vs. not
 
-- **Use it** when the user wants the document's *content/text* (read, summarize, extract,
-  Q&A over a report, paper, contract, manual).
+- **Use it** when the user wants the *content/text* of a PDF, HTML file, or web page (read,
+  summarize, extract, Q&A over a report, paper, contract, manual, or article).
 - **Skip it** when the user needs the *visuals* — charts, diagrams, infographics, scanned
   pages, math-as-images, complex multi-column layout. Read those natively. Tokendiet also
   warns when a PDF looks scanned/image-only.
@@ -32,9 +34,10 @@ the PDF to Markdown so you read the text-only version, and reports what was save
    If it's missing, tell the user to install it (see the repo's `docs/getting-started.md`)
    and stop — do not fall back to reading the PDF natively without telling them.
 
-2. **Convert, asking for a JSON report:**
+2. **Convert, asking for a JSON report** (works for a PDF, an `.html` file, or a URL):
    ```bash
    tokendiet convert "<path/to/file.pdf>" --report json
+   tokendiet convert "https://example.com/article" --report json
    ```
    The JSON includes `output` (the `.md` path), `saved_tokens`, `pct_saved`, and
    `dollar_savings`. If `warnings` mentions a scanned/image-only PDF, **stop and tell the

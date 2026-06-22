@@ -40,6 +40,32 @@ def scanned_pdf(tmp_path: Path) -> Path:
     return path
 
 
+_HTML = """<!DOCTYPE html>
+<html><head><title>Demo</title>
+<style>body{font-family:sans-serif;color:#333;margin:0}.ad{display:none}</style>
+<script>console.log('analytics');for(var i=0;i<100;i++){track(i);}</script>
+</head>
+<body>
+<nav>Home About Contact</nav>
+<h1>Tokendiet Demo Article</h1>
+<p>This paragraph is the <strong>real content</strong> a reader wants.</p>
+<p>See <a href="https://example.com">the link</a> for more.</p>
+<footer>Copyright 2026</footer>
+</body></html>"""
+
+
+@pytest.fixture
+def html_file(tmp_path: Path) -> Path:
+    path = tmp_path / "page.html"
+    path.write_text(_HTML, encoding="utf-8")
+    return path
+
+
+@pytest.fixture
+def html_text() -> str:
+    return _HTML
+
+
 @pytest.fixture
 def encrypted_pdf(tmp_path: Path) -> Path:
     """A password-protected PDF."""

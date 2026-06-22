@@ -1,20 +1,23 @@
-"""Command-line interface: ``tokendiet convert <file>``.
+"""Command-line interface: ``tokendiet convert <file-or-url>``.
 
 This is the entry point the Claude skill shells out to. It converts a document
-to Markdown, writes the ``.md`` next to it (or to ``--out``), and prints the
-savings report.
+(PDF or HTML file, or an http(s) URL) to Markdown, writes the ``.md``, and
+prints the savings report.
 """
 
 from __future__ import annotations
 
 import argparse
 import json
+import re
 import sys
 from pathlib import Path
+from urllib.parse import urlparse
 
 from . import __version__
 from .convert import (
     EncryptedPDFError,
+    FetchError,
     UnsupportedFormatError,
     convert,
     supported_formats,
@@ -22,24 +25,33 @@ from .convert import (
 from .report import build_savings, format_report
 
 
+def _is_url(arg: str) -> bool:
+    return arg.startswith(("http://", "https://"))
+
+
+def _default_out(src_arg: str) -> Path:
+    """Where to write the Markdown when ``--out`` is not given."""
+    if _is_url(src_arg):
+        parsed = urlparse(src_arg)
+        name = parsed.path.rstrip("/").split("/")[-1] or parsed.netloc or "page"
+        stem = re.sub(r"[^A-Za-z0-9_.-]+", "-", name).strip("-.") or "page"
+        return Path.cwd() / (Path(stem).stem + ".md")
+    return Path(src_arg).with_suffix(".md")
+
+
 def _cmd_convert(args: argparse.Namespace) -> int:
-    src = Path(args.file)
+    src_arg = args.file
     try:
-        result = convert(src)
+        result = convert(src_arg)
     except FileNotFoundError:
-        print(f"error: file not found: {src}", file=sys.stderr)
+        print(f"error: file not found: {src_arg}", file=sys.stderr)
         return 2
-    except (UnsupportedFormatError, EncryptedPDFError) as exc:
+    except (UnsupportedFormatError, EncryptedPDFError, FetchError) as exc:
         print(f"error: {exc}", file=sys.stderr)
         return 2
 
-    out_path = Path(args.out) if args.out else src.with_suffix(".md")
-    savings = build_savings(
-        source=str(src),
-        markdown=result.markdown,
-        page_dims=result.page_dims,
-        warnings=result.warnings,
-    )
+    savings = build_savings(result)
+    out_path = Path(args.out) if args.out else _default_out(src_arg)
 
     if args.stdout:
         sys.stdout.write(result.markdown)
@@ -67,9 +79,9 @@ def build_parser() -> argparse.ArgumentParser:
 
     conv = sub.add_parser(
         "convert",
-        help=f"Convert a document to Markdown (supported: {', '.join(supported_formats())})",
+        help=f"Convert a document or URL to Markdown (supported: {', '.join(supported_formats())})",
     )
-    conv.add_argument("file", help="Path to the document to convert")
+    conv.add_argument("file", help="Path to a document, or an http(s):// URL")
     conv.add_argument("--out", help="Output .md path (default: alongside the source)")
     conv.add_argument(
         "--report",

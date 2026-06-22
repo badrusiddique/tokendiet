@@ -11,16 +11,18 @@ Public API:
 
 from __future__ import annotations
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 
 from .convert import (
     ConversionResult,
     EncryptedPDFError,
+    FetchError,
     TokendietError,
     UnsupportedFormatError,
     convert,
     supported_formats,
 )
+from .html import html_to_markdown
 from .report import TokenSavings, build_savings, format_report
 
 __all__ = [
@@ -31,6 +33,8 @@ __all__ = [
     "TokendietError",
     "UnsupportedFormatError",
     "EncryptedPDFError",
+    "FetchError",
+    "html_to_markdown",
     "build_savings",
     "format_report",
     "TokenSavings",
