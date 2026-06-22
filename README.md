@@ -39,9 +39,10 @@ git clone https://github.com/badrusiddique/tokendiet
 cd tokendiet
 uv tool install .          # or: pipx install .   /   pip install .
 
-# 2. Convert
-tokendiet convert report.pdf            # writes report.md + prints savings
-tokendiet convert report.pdf --report json   # machine-readable report
+# 2. Convert — PDF, HTML, or a URL
+tokendiet convert report.pdf                       # writes report.md + prints savings
+tokendiet convert page.html --report json          # machine-readable report
+tokendiet convert https://en.wikipedia.org/wiki/Markdown   # fetch + convert a web page
 tokendiet convert report.pdf --stdout --quiet > report.md
 ```
 
@@ -51,21 +52,23 @@ That's it. No GPU, no cloud API, no account.
 
 Honest, reproducible, run on your own machine — **no borrowed marketing numbers.** Estimates use `tiktoken` as a proxy for Claude's tokenizer plus Anthropic's documented image-token heuristic.
 
-| Document | Pages | Native PDF (tok) | Markdown (tok) | Saved | % |
-|---|--:|--:|--:|--:|--:|
-| Real research paper (arXiv 1706.03762) | 15 | 48,830 | 10,820 | 38,010 | **78%** |
-| Prose (public-domain text) | 4 | 12,703 | 3,435 | 9,268 | **73%** |
-| Report with table | 2 | 5,687 | 1,053 | 4,634 | **81%** |
-| **Total** | **21** | **67,220** | **15,308** | **51,912** | **77%** |
+| Document | Type | Native (tok) | Markdown (tok) | Saved | % |
+|---|---|--:|--:|--:|--:|
+| Real research paper (arXiv 1706.03762) | PDF, 15p | 48,830 | 10,820 | 38,010 | **78%** |
+| Real Wikipedia article (live HTML) | HTML | 64,229 | 16,431 | 47,798 | **74%** |
+| Prose (public-domain text) | PDF, 4p | 12,703 | 3,435 | 9,268 | **73%** |
+| Bloated article (inline CSS/JS) | HTML | 6,643 | 2,407 | 4,236 | **64%** |
+| Report with table | PDF, 2p | 5,687 | 1,053 | 4,634 | **81%** |
+| **Total** | | **138,092** | **34,146** | **103,946** | **75%** |
 
 Reproduce:
 
 ```bash
-python benchmarks/make_corpus.py    # generates docs + downloads the real paper
+python benchmarks/make_corpus.py    # generates docs + downloads the real paper & web page
 python benchmarks/run.py            # writes benchmarks/RESULTS.md
 ```
 
-The savings come **entirely from eliminating per-page image tokens** — the real mechanism, not an artifact. See [`benchmarks/RESULTS.md`](benchmarks/RESULTS.md) for the full method and caveats.
+For **PDF** the savings come from eliminating per-page image tokens; for **HTML** from shedding markup (tags, attributes, inline scripts/styles). Both are the real mechanism, not an artifact. See [`benchmarks/RESULTS.md`](benchmarks/RESULTS.md) for the full method and caveats.
 
 ## How it works
 
@@ -79,11 +82,11 @@ The savings come **entirely from eliminating per-page image tokens** — the rea
                  └──────────────────────────────────────────┘
 ```
 
-Claude then reads `your.md` instead of `your.pdf`, paying for text only.
+Claude then reads `your.md` instead of `your.pdf`, paying for text only. **HTML files and URLs** follow the same path: Tokendiet strips scripts/styles/markup and emits clean Markdown (the native baseline there is the raw markup, not page images).
 
 ## Use as a Claude skill
 
-Tokendiet ships a [`SKILL.md`](SKILL.md). Once installed (see [docs/getting-started.md](docs/getting-started.md)), when you reference a PDF in Claude Code, Claude converts it with Tokendiet, reads the lean Markdown, and shows you the savings — instead of burning tokens on the native PDF.
+Tokendiet ships a [`SKILL.md`](SKILL.md). Once installed (see [docs/getting-started.md](docs/getting-started.md)), when you reference a PDF or web page in Claude Code, Claude converts it with Tokendiet, reads the lean Markdown, and shows you the savings — instead of burning tokens on the native document.
 
 > **A note on honesty:** a skill triggers on *intent*, not on a file-drop event. Tokendiet is **convert-on-reference**, not a magic upload interceptor. No false promises.
 
@@ -98,7 +101,7 @@ Tokendiet is the wrong tool when the **visuals** are the point:
 
 | | Tokendiet | [MarkItDown](https://github.com/microsoft/markitdown) | Plain PDF→MD skills |
 |---|---|---|---|
-| PDF → Markdown | ✅ | ✅ | ✅ |
+| PDF / HTML / URL → Markdown | ✅ | ✅ / ✅ / ❌ | PDF only |
 | **Measured token-$ savings report** | ✅ | ❌ | ❌ |
 | Reproducible benchmark in-repo | ✅ | ❌ | ❌ |
 | Scanned/visual-loss warnings | ✅ | partial | ❌ |
@@ -112,9 +115,9 @@ Tokendiet isn't trying to out-parse MarkItDown — it's the one that **shows you
 
 **Are the numbers exact?** They're labelled **estimates** (tiktoken proxy + documented image heuristic). For exact figures, validate against Anthropic's `count_tokens` API; the offline estimate is designed to be close and conservative.
 
-**What about DOCX / HTML / PPTX?** Coming in later versions — but **only** formats our benchmark proves actually save token-$. Formats that don't will be documented as skipped, not shipped for show. See the [CHANGELOG](CHANGELOG.md).
+**What about DOCX / PPTX / XLSX?** Coming in later versions — but **only** formats our benchmark proves actually save token-$. Formats that don't will be documented as skipped, not shipped for show. See the [CHANGELOG](CHANGELOG.md).
 
-**Roadmap?** PDF (v0.1) → HTML (v0.2, expected biggest win) → Office/images (v0.3, benchmark-gated).
+**Roadmap?** PDF (v0.1 ✓) → HTML + URLs (v0.2 ✓, 74% on a live Wikipedia page) → Office/images (v0.3, benchmark-gated).
 
 ## License
 

@@ -15,14 +15,17 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 from dataclasses import dataclass, field
+from typing import TYPE_CHECKING
 
 from .tokens import (
     DEFAULT_PRICES,
     ModelPrice,
     count_text_tokens,
     dollars_for_tokens,
-    page_image_tokens,
 )
+
+if TYPE_CHECKING:
+    from .convert import ConversionResult
 
 
 @dataclass
@@ -75,52 +78,40 @@ class TokenSavings:
         }
 
 
-def build_savings(
-    source: str,
-    markdown: str,
-    page_dims: Sequence[tuple[float, float]],
-    warnings: list[str] | None = None,
-) -> TokenSavings:
-    """Build an offline (estimated) savings report for a converted document.
+def build_savings(result: ConversionResult, method: str = "estimate") -> TokenSavings:
+    """Assemble a savings report from a :class:`~tokendiet.convert.ConversionResult`.
 
-    ``page_dims`` is a list of (width_pt, height_pt) per page from the source
-    PDF; it drives the native image-token estimate.
+    The backend has already computed the native cost (text + image tokens); here
+    we count the Markdown ("after") and combine. The mechanism is honest: PDF
+    savings come from eliminating page-image tokens, HTML savings from shedding
+    markup.
     """
-    before_text = _estimate_native_text_tokens(markdown, len(page_dims))
-    before_image = sum(page_image_tokens(w, h) for (w, h) in page_dims)
-    after = count_text_tokens(markdown)
+    after = count_text_tokens(result.markdown)
     return TokenSavings(
-        source=source,
-        pages=len(page_dims),
-        before_text_tokens=before_text,
-        before_image_tokens=before_image,
+        source=result.source,
+        pages=result.pages,
+        before_text_tokens=result.before_text_tokens,
+        before_image_tokens=result.before_image_tokens,
         after_tokens=after,
-        method="estimate",
-        warnings=list(warnings or []),
+        method=method,
+        warnings=list(result.warnings),
     )
-
-
-def _estimate_native_text_tokens(markdown: str, pages: int) -> int:
-    """Estimate the text tokens Claude extracts from the native PDF.
-
-    The extracted text is essentially the same words as the Markdown minus the
-    Markdown syntax, so the Markdown token count is a close, slightly
-    conservative proxy for the native extracted text. We use it directly rather
-    than inventing a separate number — the honest, defensible choice. The
-    savings therefore come entirely from eliminating the per-page image tokens,
-    which is exactly the real mechanism.
-    """
-    return count_text_tokens(markdown)
 
 
 def format_report(savings: TokenSavings, prices: Sequence[ModelPrice] = DEFAULT_PRICES) -> str:
     """Render a human-readable report block."""
     note = " (estimate)" if savings.method == "estimate" else " (ground truth)"
+    if savings.before_image_tokens > 0:
+        native = (
+            f"  Native{note}: {savings.before_total:,} tokens "
+            f"({savings.before_text_tokens:,} text + {savings.before_image_tokens:,} image)"
+        )
+    else:
+        native = f"  Native{note}: {savings.before_total:,} tokens (raw markup)"
     lines = [
         f"Tokendiet — {savings.source}",
-        f"  Pages: {savings.pages}",
-        f"  Native PDF{note}: {savings.before_total:,} tokens "
-        f"({savings.before_text_tokens:,} text + {savings.before_image_tokens:,} image)",
+        f"  Pages: {savings.pages}" if savings.pages else "  HTML",
+        native,
         f"  Markdown{note}:   {savings.after_tokens:,} tokens",
         f"  Saved: {savings.saved_tokens:,} tokens ({savings.pct_saved:.0f}%)",
     ]

@@ -31,6 +31,15 @@ def test_cli_convert_stdout(text_pdf: Path, capsys):
     assert capsys.readouterr().out.strip()
 
 
+def test_cli_convert_html(html_file: Path, capsys):
+    rc = main(["convert", str(html_file), "--report", "json"])
+    assert rc == 0
+    out = json.loads(capsys.readouterr().out)
+    assert out["pages"] == 0
+    assert out["saved_tokens"] > 0
+    assert Path(out["output"]).exists()
+
+
 def test_cli_unsupported_returns_2(tmp_path: Path):
     f = tmp_path / "x.xyz"
     f.write_text("hi")

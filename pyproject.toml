@@ -1,6 +1,6 @@
 [project]
 name = "tokendiet"
-version = "0.1.0"
+version = "0.2.0"
 description = "Convert documents to lean Markdown so Claude reads the cheap version — with a measured token-$ savings report."
 readme = "README.md"
 requires-python = ">=3.9"
@@ -25,6 +25,7 @@ classifiers = [
     "Topic :: Utilities",
 ]
 dependencies = [
+    "markdownify>=1.2.2",
     "pymupdf4llm>=0.0.17",
     "tiktoken>=0.7",
 ]

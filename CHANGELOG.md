@@ -7,8 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Planned
-- **v0.2.0** — HTML → Markdown (expected the biggest token win; benchmark-gated before any claim).
 - **v0.3.0** — DOCX / PPTX / XLSX / image-OCR, **only** for formats the benchmark proves save token-$. Skipped formats will be documented, not shipped for show.
+
+## [0.2.0] — 2026-06-22
+
+HTML support.
+
+### Added
+- **HTML → Markdown** for local `.html`/`.htm` files **and** `http(s)://` URLs
+  (`tokendiet convert https://…`). Strips scripts/styles/head and converts the rest, keeping
+  structural content so no real text is silently dropped.
+- Format-aware savings: HTML's native baseline is the raw markup tokens (no page images),
+  while PDF's remains text + page-image tokens — each backend computes its own native cost.
+- Benchmark corpus extended with a generated bloated article and a live Wikipedia page.
+  **HTML reduction: 74% on a real Wikipedia article**; new aggregate **75%** across 5 docs.
+
+### Changed
+- `build_savings()` now takes a `ConversionResult` (internal API; pre-1.0).
+- `ConversionResult` carries `before_text_tokens` / `before_image_tokens` / `pages`.
 
 ## [0.1.0] — 2026-06-22
 
@@ -29,5 +45,6 @@ First release. PDF core.
 - `SKILL.md` for use as a Claude skill (convert-on-reference).
 - Full test suite (token math, reporter, conversion edge cases, CLI) and CI.
 
-[Unreleased]: https://github.com/badrusiddique/tokendiet/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/badrusiddique/tokendiet/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/badrusiddique/tokendiet/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/badrusiddique/tokendiet/releases/tag/v0.1.0

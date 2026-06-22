@@ -33,11 +33,15 @@ Bennet made no answer. "Do you not want to know who has taken it?" cried his wif
 impatiently. "You want to tell me, and I have no objection to hearing it." This was
 invitation enough."""
 
-# Remote, real-world PDFs. Downloaded at runtime; NOT redistributed in this repo.
+# Remote, real-world docs. Downloaded at runtime; NOT redistributed in this repo.
 REMOTE = {
     "paper-attention.pdf": (
         "https://arxiv.org/pdf/1706.03762",
         "Vaswani et al., 'Attention Is All You Need' (arXiv:1706.03762).",
+    ),
+    "wikipedia-markdown.html": (
+        "https://en.wikipedia.org/wiki/Markdown",
+        "Wikipedia 'Markdown' article HTML (CC BY-SA).",
     ),
 }
 
@@ -87,6 +91,25 @@ def make_report() -> Path:
     return path
 
 
+def make_html() -> Path:
+    """A bloated HTML article (inline CSS + JS + nav/footer) — the HTML worst case."""
+    paras = "".join(f"<p>{_PD_PROSE}</p>" for _ in range(10))
+    style = "body{margin:0;font-family:sans-serif;color:#222}.x{display:none}" * 120
+    script = "function track(e){return document.querySelectorAll('a').length+e;}" * 120
+    nav = "<ul>" + "".join(f"<li><a href='/p{i}'>Section {i}</a></li>" for i in range(30)) + "</ul>"
+    html = (
+        "<!DOCTYPE html><html><head><title>Pride and Prejudice</title>"
+        f"<style>{style}</style><script>{script}</script></head><body>"
+        f"<nav>{nav}</nav>"
+        f"<article><h1>Pride and Prejudice</h1>{paras}</article>"
+        "<footer>Copyright 2026 — all rights reserved. " + ("nav noise " * 50) + "</footer>"
+        "</body></html>"
+    )
+    path = CORPUS / "article.html"
+    path.write_text(html, encoding="utf-8")
+    return path
+
+
 def fetch_remote() -> list[Path]:
     out: list[Path] = []
     for name, (url, note) in REMOTE.items():
@@ -111,8 +134,8 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     CORPUS.mkdir(parents=True, exist_ok=True)
-    print("Generating reproducible PDFs:")
-    for fn in (make_prose, make_report):
+    print("Generating reproducible docs:")
+    for fn in (make_prose, make_report, make_html):
         p = fn()
         print(f"  wrote {p.relative_to(CORPUS.parent)}")
     if not args.no_remote:
