@@ -7,7 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Planned
-- **Images (PNG/JPG/scans) → Markdown via OCR** — fits the thesis (eliminates image tokens like a PDF page); pending a local OCR engine decision and a confirming benchmark. See [docs/ROADMAP.md](docs/ROADMAP.md).
+- **Video → transcript (Markdown)** — the largest saving measured (~567×: frames→text); needs a Whisper-class ASR engine. Opt-in, benchmark-gated. See [docs/ROADMAP.md](docs/ROADMAP.md).
+
+## [0.5.0] — 2026-06-23
+
+Images, and proof that Markdown is the right target.
+
+### Added
+- **Image → Markdown via OCR** for `.png/.jpg/.jpeg/.webp/.bmp/.tif/.tiff`, behind the optional
+  `ocr` extra (`pip install 'tokendiet[ocr]'`) — `rapidocr-onnxruntime`, CPU-only, models
+  bundled, no GPU. Verified **~71% saving** (a text page as an image is ~2,317 tokens; OCR'd
+  Markdown ~665). Warns when no text is found (likely a photo, not a document).
+- `benchmarks/format_compare.py` — evidence that **Markdown is the right target format**:
+  base64/binary are **7×–360× worse**; plain text only beats Markdown by dropping links;
+  the real wins are per-input extraction (OCR, transcript). Documented in
+  [docs/format-support.md](docs/format-support.md#why-markdown-not-base64-binary-latex-).
+
+### Notes
+- OCR is an opt-in extra, so the core install and CI stay light (no OCR models in CI).
 
 ## [0.4.0] — 2026-06-23
 
@@ -84,7 +101,8 @@ First release. PDF core.
 - `SKILL.md` for use as a Claude skill (convert-on-reference).
 - Full test suite (token math, reporter, conversion edge cases, CLI) and CI.
 
-[Unreleased]: https://github.com/badrusiddique/tokendiet/compare/v0.4.0...HEAD
+[Unreleased]: https://github.com/badrusiddique/tokendiet/compare/v0.5.0...HEAD
+[0.5.0]: https://github.com/badrusiddique/tokendiet/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/badrusiddique/tokendiet/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/badrusiddique/tokendiet/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/badrusiddique/tokendiet/compare/v0.1.0...v0.2.0

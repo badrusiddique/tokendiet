@@ -11,12 +11,13 @@ Public API:
 
 from __future__ import annotations
 
-__version__ = "0.4.0"
+__version__ = "0.5.0"
 
 from .convert import (
     ConversionResult,
     EncryptedPDFError,
     FetchError,
+    OCRNotInstalledError,
     TokendietError,
     UnsupportedFormatError,
     convert,
@@ -34,6 +35,7 @@ __all__ = [
     "UnsupportedFormatError",
     "EncryptedPDFError",
     "FetchError",
+    "OCRNotInstalledError",
     "html_to_markdown",
     "build_savings",
     "format_report",
