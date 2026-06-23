@@ -1,9 +1,9 @@
 [project]
 name = "tokendiet"
-version = "0.3.0"
+version = "0.4.0"
 description = "Convert documents to lean Markdown so Claude reads the cheap version — with a measured token-$ savings report."
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 license = { text = "MIT" }
 authors = [{ name = "Badru Siddique" }]
 keywords = [
@@ -28,6 +28,7 @@ dependencies = [
     "markdownify>=1.2.2",
     "pymupdf4llm>=0.0.17",
     "tiktoken>=0.7",
+    "trafilatura>=2.0",
 ]
 
 [project.optional-dependencies]
@@ -62,7 +63,7 @@ packages = ["src/tokendiet"]
 
 [tool.ruff]
 line-length = 100
-target-version = "py39"
+target-version = "py310"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B", "W"]

@@ -7,7 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Planned
-- **Images (PNG/JPG/scans) → Markdown via OCR** — fits the thesis (eliminates image tokens like a PDF page); pending a local OCR engine decision and a confirming benchmark.
+- **Images (PNG/JPG/scans) → Markdown via OCR** — fits the thesis (eliminates image tokens like a PDF page); pending a local OCR engine decision and a confirming benchmark. See [docs/ROADMAP.md](docs/ROADMAP.md).
+
+## [0.4.0] — 2026-06-23
+
+Deeper HTML savings + verifiable numbers.
+
+### Added
+- **Main-content extraction for HTML/URLs** via `trafilatura` (default), with a safe fallback
+  to the previous full strip-and-convert when no article body is found — so content is never
+  silently dropped. Drops nav/sidebar/footer clutter.
+- `benchmarks/ground_truth.py` — validates the with-vs-without saving against Anthropic's real
+  `count_tokens` API (run with `ANTHROPIC_API_KEY`), not just the offline estimate.
+- `docs/ROADMAP.md` — prioritized, benchmark-gated improvement backlog.
+
+### Changed
+- HTML savings improved: live Wikipedia article **74% → 85%**, synthetic article **64% → 71%**;
+  new aggregate **81%** (was 75%) across the 5-doc corpus. Links are preserved (`include_links`),
+  trading a few tokens for fidelity.
+- New runtime dependency: `trafilatura` (pure-Python, CPU-only).
+- **Minimum Python is now 3.10** (was 3.9), required by `trafilatura`. Python 3.9 is past end-of-life.
 
 ## [0.3.0] — 2026-06-23
 
@@ -63,7 +82,8 @@ First release. PDF core.
 - `SKILL.md` for use as a Claude skill (convert-on-reference).
 - Full test suite (token math, reporter, conversion edge cases, CLI) and CI.
 
-[Unreleased]: https://github.com/badrusiddique/tokendiet/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/badrusiddique/tokendiet/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/badrusiddique/tokendiet/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/badrusiddique/tokendiet/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/badrusiddique/tokendiet/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/badrusiddique/tokendiet/releases/tag/v0.1.0

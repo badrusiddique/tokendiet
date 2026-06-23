@@ -9,8 +9,8 @@ Markdown.** A format earns support only if it *genuinely* saves token-$ against 
 | Format | Native cost (what you'd otherwise pay) | Typical saving |
 |---|---|---|
 | **PDF** | Extracted text **+ a rendered image of every page** | ~73–81% |
-| **HTML file** | Raw markup: tags, attributes, inline scripts/styles | ~64% |
-| **URL (web page)** | Same as HTML, fetched live | ~74% (real Wikipedia article) |
+| **HTML file** | Raw markup: tags, attributes, inline scripts/styles | ~71% |
+| **URL (web page)** | Same as HTML, fetched live | ~85% (real Wikipedia article, main-content extraction) |
 
 Full, reproducible numbers: [`../benchmarks/RESULTS.md`](../benchmarks/RESULTS.md).
 
