@@ -7,7 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Planned
-- **v0.3.0** — DOCX / PPTX / XLSX / image-OCR, **only** for formats the benchmark proves save token-$. Skipped formats will be documented, not shipped for show.
+- **Images (PNG/JPG/scans) → Markdown via OCR** — fits the thesis (eliminates image tokens like a PDF page); pending a local OCR engine decision and a confirming benchmark.
+
+## [0.3.0] — 2026-06-23
+
+Format scope finalized. **Office formats investigated and deliberately excluded** — with data.
+
+### Added
+- `docs/format-support.md` — what Tokendiet supports (PDF, HTML, URLs) and **why DOCX/XLSX/PPTX
+  are intentionally not supported**: they have no expensive native form, so Markdown saves
+  nothing (it's marginally larger than realistic text extraction).
+- `benchmarks/office_probe.py` — reproducible evidence for the above (run with `uv sync --group probe`).
+
+### Changed
+- README FAQ now answers DOCX/PPTX/XLSX definitively with measured data instead of "coming soon".
+- Office-probe dependencies isolated in a `probe` dependency group (not installed by default or in CI).
+
+### Notes
+- No new conversion formats this release — by design. Per the project's rule, a format ships
+  only if it genuinely saves token-$; Office files don't.
 
 ## [0.2.0] — 2026-06-22
 
@@ -45,6 +63,7 @@ First release. PDF core.
 - `SKILL.md` for use as a Claude skill (convert-on-reference).
 - Full test suite (token math, reporter, conversion edge cases, CLI) and CI.
 
-[Unreleased]: https://github.com/badrusiddique/tokendiet/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/badrusiddique/tokendiet/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/badrusiddique/tokendiet/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/badrusiddique/tokendiet/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/badrusiddique/tokendiet/releases/tag/v0.1.0
