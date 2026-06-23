@@ -15,9 +15,9 @@ The reporter just assembles these into a savings report.
 from __future__ import annotations
 
 import urllib.request
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Callable
 
 from .tokens import count_text_tokens, page_image_tokens
 

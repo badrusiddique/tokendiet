@@ -4,12 +4,12 @@ _Generated 2026-06-23 by `python benchmarks/run.py`. Numbers are **estimates** (
 
 | Document | Pages | Native (tok) | Markdown (tok) | Saved | % saved | $ saved/call (Opus) |
 |---|--:|--:|--:|--:|--:|--:|
-| article.html | 0 | 6,643 | 2,407 | 4,236 | 64% | $0.0212 |
+| article.html | 0 | 6,643 | 1,897 | 4,746 | 71% | $0.0237 |
 | paper-attention.pdf | 15 | 48,830 | 10,820 | 38,010 | 78% | $0.1900 |
 | prose.pdf | 4 | 12,703 | 3,435 | 9,268 | 73% | $0.0463 |
 | report.pdf | 2 | 5,687 | 1,053 | 4,634 | 81% | $0.0232 |
-| wikipedia-markdown.html | 0 | 64,235 | 16,431 | 47,804 | 74% | $0.2390 |
-| **Total** | | **138,098** | **34,146** | **103,952** | **75%** | **$0.5198** |
+| wikipedia-markdown.html | 0 | 64,235 | 9,513 | 54,722 | 85% | $0.2736 |
+| **Total** | | **138,098** | **26,718** | **111,380** | **81%** | **$0.5569** |
 
 ## Method
 

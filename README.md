@@ -55,11 +55,11 @@ Honest, reproducible, run on your own machine — **no borrowed marketing number
 | Document | Type | Native (tok) | Markdown (tok) | Saved | % |
 |---|---|--:|--:|--:|--:|
 | Real research paper (arXiv 1706.03762) | PDF, 15p | 48,830 | 10,820 | 38,010 | **78%** |
-| Real Wikipedia article (live HTML)† | HTML | 64,235 | 16,431 | 47,804 | **74%** |
+| Real Wikipedia article (live HTML)† | HTML | 64,235 | 9,513 | 54,722 | **85%** |
 | Prose (public-domain text) | PDF, 4p | 12,703 | 3,435 | 9,268 | **73%** |
-| Bloated article (inline CSS/JS) | HTML | 6,643 | 2,407 | 4,236 | **64%** |
+| Bloated article (inline CSS/JS) | HTML | 6,643 | 1,897 | 4,746 | **71%** |
 | Report with table | PDF, 2p | 5,687 | 1,053 | 4,634 | **81%** |
-| **Total** | | **138,098** | **34,146** | **103,952** | **75%** |
+| **Total** | | **138,098** | **26,718** | **111,380** | **81%** |
 
 <sub>† Live web page — exact tokens drift a little between fetches; regenerate to see current numbers.</sub>
 
@@ -84,7 +84,7 @@ For **PDF** the savings come from eliminating per-page image tokens; for **HTML*
                  └──────────────────────────────────────────┘
 ```
 
-Claude then reads `your.md` instead of `your.pdf`, paying for text only. **HTML files and URLs** follow the same path: Tokendiet strips scripts/styles/markup and emits clean Markdown (the native baseline there is the raw markup, not page images).
+Claude then reads `your.md` instead of `your.pdf`, paying for text only. **HTML files and URLs** follow the same path: Tokendiet extracts the main content (via `trafilatura`, falling back to a full strip-and-convert when no article body is found) and emits clean Markdown — shedding nav, sidebars, footers, scripts, and styles. The native baseline there is the raw markup, not page images.
 
 ## Use as a Claude skill
 
@@ -119,7 +119,7 @@ Tokendiet isn't trying to out-parse MarkItDown — it's the one that **shows you
 
 **What about DOCX / PPTX / XLSX?** **Deliberately not supported** — we measured, and they don't save tokens. Office files have no expensive native form (Claude doesn't image them like PDFs, and their text extraction is already Markdown-sized), so converting them is equal or *larger*. We won't ship a feature that doesn't deliver on the promise. Full data and the reproducible probe: [docs/format-support.md](docs/format-support.md). For convenience conversion, use [MarkItDown](https://github.com/microsoft/markitdown).
 
-**Roadmap?** PDF (v0.1 ✓) → HTML + URLs (v0.2 ✓, 74% on a live Wikipedia page) → Office investigated & excluded with data (v0.3 ✓) → images-via-OCR (benchmark-gated). See [docs/format-support.md](docs/format-support.md).
+**Roadmap?** PDF (v0.1 ✓) → HTML + URLs (v0.2 ✓) → Office investigated & excluded with data (v0.3 ✓) → main-content extraction, 85% on a live Wikipedia page (v0.4 ✓) → images-via-OCR (benchmark-gated). See [docs/ROADMAP.md](docs/ROADMAP.md).
 
 ## License
 
