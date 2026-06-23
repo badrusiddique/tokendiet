@@ -56,11 +56,11 @@ Honest, reproducible, run on your own machine — **no borrowed marketing number
 | Document | Type | Native (tok) | Markdown (tok) | Saved | % |
 |---|---|--:|--:|--:|--:|
 | Real research paper (arXiv 1706.03762) | PDF, 15p | 48,830 | 10,820 | 38,010 | **78%** |
-| Real Wikipedia article (live HTML)† | HTML | 64,235 | 9,513 | 54,722 | **85%** |
+| Real Wikipedia article (live HTML)† | HTML | 64,229 | 9,513 | 54,716 | **85%** |
 | Prose (public-domain text) | PDF, 4p | 12,703 | 3,435 | 9,268 | **73%** |
 | Bloated article (inline CSS/JS) | HTML | 6,643 | 1,897 | 4,746 | **71%** |
 | Report with table | PDF, 2p | 5,687 | 1,053 | 4,634 | **81%** |
-| **Total** | | **138,098** | **26,718** | **111,380** | **81%** |
+| **Total** | | **138,092** | **26,718** | **111,374** | **81%** |
 
 <sub>† Live web page — exact tokens drift a little between fetches; regenerate to see current numbers.</sub>
 
