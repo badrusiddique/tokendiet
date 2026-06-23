@@ -26,7 +26,9 @@ Deeper HTML savings + verifiable numbers.
   new aggregate **81%** (was 75%) across the 5-doc corpus. Links are preserved (`include_links`),
   trading a few tokens for fidelity.
 - New runtime dependency: `trafilatura` (pure-Python, CPU-only).
-- **Minimum Python is now 3.10** (was 3.9), required by `trafilatura`. Python 3.9 is past end-of-life.
+- **Minimum Python is now 3.11** (was 3.9). `trafilatura` needs ≥3.10, and `onnxruntime`
+  (pulled in by `pymupdf4llm`'s layout engine) ships no Linux wheel below cp311. Python 3.9/3.10
+  are at or near end-of-life. CI runs 3.11 / 3.12 / 3.13.
 
 ## [0.3.0] — 2026-06-23
 

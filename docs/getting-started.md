@@ -7,7 +7,7 @@ Tokendiet is two things in one repo:
 
 ## 1. Install the CLI
 
-You need Python 3.10+ and one of `uv`, `pipx`, or `pip`.
+You need Python 3.11+ and one of `uv`, `pipx`, or `pip`.
 
 ```bash
 git clone https://github.com/badrusiddique/tokendiet

@@ -10,7 +10,7 @@ Run: ``python benchmarks/run.py``  (after ``python benchmarks/make_corpus.py``)
 from __future__ import annotations
 
 import sys
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 from tokendiet import build_savings, convert
@@ -33,7 +33,7 @@ def _run_one(path: Path):
 
 
 def main(argv: list[str] | None = None) -> int:
-    generated_at = argv[0] if argv else datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    generated_at = argv[0] if argv else datetime.now(UTC).strftime("%Y-%m-%d")
     docs = sorted(p for pat in SUPPORTED for p in CORPUS.glob(pat))
     if not docs:
         print("No documents in corpus/. Run: python benchmarks/make_corpus.py", file=sys.stderr)

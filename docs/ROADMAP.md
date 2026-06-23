@@ -52,6 +52,12 @@ cuts repeat input cost ~90%. Tokendiet + caching compound. Document the pattern;
 [Marker](https://github.com/datalab-to/marker) handles complex tables better than
 pymupdf4llm, at a heavier install. Keep pymupdf4llm the default; offer Marker as opt-in.
 
+### 7. Slim the PDF dependency to restore true "dependency-light"
+`pymupdf4llm` 1.x pulls `pymupdf-layout` → `onnxruntime` + `numpy` + `networkx` (heavy, and
+onnxruntime has no Linux wheel below cp311 — the reason the floor is 3.11). Evaluate capping
+`pymupdf4llm` below the layout-engine version, or swapping to a lighter PDF backend, to drop
+~100 MB of deps and lower the Python floor. Re-benchmark PDF output before switching.
+
 ## P2 — situational
 
 ### 7. Images (PNG/JPG/scans) → Markdown via OCR
