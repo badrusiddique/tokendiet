@@ -162,6 +162,30 @@ def _get_ocr():
     return _ocr_engine
 
 
+LOW_OCR_CONFIDENCE = 0.6
+
+
+def _ocr_quality_warnings(markdown: str, confidences: list[float]) -> list[str]:
+    """Honest fidelity flags for an OCR result.
+
+    OCR is the least faithful path (~90-95% on clean pages; worse on small text,
+    numbers, and noisy scans). We surface that risk instead of hiding it.
+    """
+    if len(markdown.strip()) < 10:
+        return [
+            "No text detected — this image may be a photo, not a document. "
+            "Let Claude see it natively instead."
+        ]
+    if confidences:
+        mean = sum(confidences) / len(confidences)
+        if mean < LOW_OCR_CONFIDENCE:
+            return [
+                f"Low OCR confidence (~{mean:.0%}) — verify the text, especially numbers "
+                "and symbols, or let Claude read the image natively."
+            ]
+    return []
+
+
 def _convert_image(path: Path) -> ConversionResult:
     ocr = _get_ocr()  # raises OCRNotInstalledError if the extra is missing
     try:
@@ -172,14 +196,10 @@ def _convert_image(path: Path) -> ConversionResult:
 
     result, _ = ocr(str(path))
     lines = [row[1] for row in result] if result else []
+    confidences = [float(row[2]) for row in result] if result else []
     markdown = "\n".join(line for line in lines if line.strip()).strip() + "\n"
 
-    warnings: list[str] = []
-    if len(markdown.strip()) < 10:
-        warnings.append(
-            "No text detected — this image may be a photo, not a document. "
-            "Let Claude see it natively instead."
-        )
+    warnings = _ocr_quality_warnings(markdown, confidences)
     # Native image cost: the tokens Claude pays to render/see the image. The win
     # is replacing those with the OCR'd text.
     return ConversionResult(

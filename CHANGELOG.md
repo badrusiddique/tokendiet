@@ -7,7 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Planned
-- **Video → transcript (Markdown)** — the largest saving measured (~567×: frames→text); needs a Whisper-class ASR engine. Opt-in, benchmark-gated. See [docs/ROADMAP.md](docs/ROADMAP.md).
+- **Video → transcript (Markdown)** — the largest saving measured (~567×: frames→text); needs a Whisper-class ASR engine. Opt-in, benchmark-gated, **fidelity to be measured before shipping**. See [docs/ROADMAP.md](docs/ROADMAP.md).
+
+## [0.6.0] — 2026-06-23
+
+Fidelity hardening — proof that savings don't cost content.
+
+### Added
+- `benchmarks/fidelity_check.py` — measures how much source **text survives** each conversion
+  and shows what's dropped. Results: PDF **95–98%** (tables kept), HTML keeps the article body
+  (only chrome dropped), image OCR **~90–95%** (weaker on small text/numbers).
+- **Low-confidence OCR warning** — image conversion now warns (`~NN%`) when mean OCR confidence
+  is below 0.6, advising verification of numbers/symbols or native reading.
+- "Fidelity — what's preserved, what's lost" section in
+  [docs/format-support.md](docs/format-support.md#fidelity--whats-preserved-whats-lost).
+
+### Notes
+- Reaffirms the boundary: body **text** is never silently dropped; genuinely **visual** content
+  (charts, diagrams, photos, math-as-image) can't survive a text conversion — and the tool warns.
 
 ## [0.5.0] — 2026-06-23
 
@@ -101,7 +118,8 @@ First release. PDF core.
 - `SKILL.md` for use as a Claude skill (convert-on-reference).
 - Full test suite (token math, reporter, conversion edge cases, CLI) and CI.
 
-[Unreleased]: https://github.com/badrusiddique/tokendiet/compare/v0.5.0...HEAD
+[Unreleased]: https://github.com/badrusiddique/tokendiet/compare/v0.6.0...HEAD
+[0.6.0]: https://github.com/badrusiddique/tokendiet/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/badrusiddique/tokendiet/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/badrusiddique/tokendiet/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/badrusiddique/tokendiet/compare/v0.2.0...v0.3.0

@@ -29,6 +29,20 @@ def test_image_without_ocr_raises(monkeypatch, png_image: Path):
         convert(png_image)
 
 
+def test_ocr_warning_no_text():
+    w = convert_mod._ocr_quality_warnings("\n", [0.99])
+    assert w and "No text detected" in w[0]
+
+
+def test_ocr_warning_low_confidence():
+    w = convert_mod._ocr_quality_warnings("Some recovered text here", [0.3, 0.4, 0.5])
+    assert w and "Low OCR confidence" in w[0]
+
+
+def test_ocr_no_warning_when_confident():
+    assert convert_mod._ocr_quality_warnings("Some recovered text here", [0.95, 0.97]) == []
+
+
 def test_image_ocr_extracts_text(png_image: Path):
     """With OCR available, an image of text converts to lean Markdown with real savings."""
     pytest.importorskip("rapidocr_onnxruntime")

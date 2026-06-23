@@ -1537,7 +1537,7 @@ wheels = [
 
 [[package]]
 name = "tokendiet"
-version = "0.5.0"
+version = "0.6.0"
 source = { editable = "." }
 dependencies = [
     { name = "markdownify" },

@@ -1,6 +1,6 @@
 [project]
 name = "tokendiet"
-version = "0.5.0"
+version = "0.6.0"
 description = "Convert documents to lean Markdown so Claude reads the cheap version — with a measured token-$ savings report."
 readme = "README.md"
 requires-python = ">=3.11"
