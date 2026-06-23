@@ -15,6 +15,25 @@ Markdown.** A format earns support only if it *genuinely* saves token-$ against 
 
 Full, reproducible numbers: [`../benchmarks/RESULTS.md`](../benchmarks/RESULTS.md).
 
+## Fidelity — what's preserved, what's lost
+
+Token savings are worthless if they drop the content you uploaded for. We measure it
+(`benchmarks/fidelity_check.py`), comparing each conversion against the source:
+
+| Input | Text fidelity (measured) | What's lost |
+|---|--:|---|
+| **PDF** | **95–98%** word recall; tables kept (29 rows on the arXiv paper) | figures/charts (images), some equation glyphs, ligature artifacts — *by design* |
+| **HTML** | article body + tables kept; ~30% of the page dropped | verified **chrome only** — nav, sidebar, footer, "Edit"/"Print" links |
+| **Image (OCR)** | **~90–95%** on clean pages | ~5–10%, weaker on **small text and numbers**; quality-dependent |
+
+**Principle:** Tokendiet never silently drops body *text*. What it can't carry is genuinely
+**visual** information — charts, diagrams, photos, infographics, math-as-image, layout. That's
+the boundary of any text conversion, not a bug. The tool **warns** when it detects a
+scanned/image-only PDF, a no-text image, or **low-confidence OCR**, and the guidance is
+explicit: *when the visuals are the point, let Claude read the original natively.*
+
+Reproduce: `python benchmarks/fidelity_check.py` (image section needs the `ocr` extra).
+
 ## Why Markdown (not base64, binary, LaTeX, …)?
 
 We measured every plausible target encoding across inputs (`benchmarks/format_compare.py`):

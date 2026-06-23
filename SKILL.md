@@ -55,6 +55,10 @@ the lean text-only version, and reports what was saved. Supports **PDF, HTML fil
 
 ## Notes
 
+- **Fidelity:** PDF/HTML keep essentially all the body text (PDF 95-98%, tables included);
+  image OCR recovers ~90-95% and is weaker on small text/numbers. If a `warnings` entry
+  mentions low OCR confidence or no text, tell the user and offer native reading. Genuinely
+  visual content (charts, diagrams, photos) is not preserved by any text conversion.
 - Numbers are **estimates** (clearly labelled). They're conservative and close; for exact
   counts, Anthropic's `count_tokens` API is authoritative.
 - Tokendiet is **convert-on-reference**: it acts when you reference a PDF, not via a
