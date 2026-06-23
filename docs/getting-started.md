@@ -17,6 +17,9 @@ cd tokendiet
 uv tool install .        # recommended — isolated, on your PATH
 pipx install .           # also isolated
 pip install .            # into the current environment
+
+# For image OCR (optional, CPU-only):
+pip install '.[ocr]'     # or: uv tool install '.[ocr]'
 ```
 
 Verify:

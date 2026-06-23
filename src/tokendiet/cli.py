@@ -18,6 +18,7 @@ from . import __version__
 from .convert import (
     EncryptedPDFError,
     FetchError,
+    OCRNotInstalledError,
     UnsupportedFormatError,
     convert,
     supported_formats,
@@ -46,7 +47,7 @@ def _cmd_convert(args: argparse.Namespace) -> int:
     except FileNotFoundError:
         print(f"error: file not found: {src_arg}", file=sys.stderr)
         return 2
-    except (UnsupportedFormatError, EncryptedPDFError, FetchError) as exc:
+    except (UnsupportedFormatError, EncryptedPDFError, FetchError, OCRNotInstalledError) as exc:
         print(f"error: {exc}", file=sys.stderr)
         return 2
 

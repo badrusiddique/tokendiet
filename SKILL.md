@@ -1,13 +1,13 @@
 ---
 name: tokendiet
 description: >-
-  Convert PDFs, HTML files, and web-page URLs to lean Markdown before reading them, to save
-  Claude tokens and money. Use when the user references, attaches, uploads, or asks to read /
-  analyze / summarize / extract from a PDF or HTML file (or a .pdf/.html path), or gives a
-  web-page URL to read, and the goal is the TEXT rather than the visual layout. Also use when
-  the user asks how many tokens a document will cost, or how to reduce token usage from
-  documents/web pages. Do NOT use when the user needs Claude to SEE the visuals (charts,
-  diagrams, scans, complex layouts) — read those natively.
+  Convert PDFs, HTML files, web-page URLs, and document images to lean Markdown before reading
+  them, to save Claude tokens and money. Use when the user references, attaches, uploads, or
+  asks to read / analyze / summarize / extract from a PDF, HTML, or image file (.pdf/.html/.png/
+  .jpg…), or gives a web-page URL, and the goal is the TEXT rather than the visual layout. Also
+  use when the user asks how many tokens a document will cost, or how to reduce token usage from
+  documents/web pages/images. Do NOT use when the user needs Claude to SEE the visuals (charts,
+  diagrams, photos, complex layouts) — read those natively.
 ---
 
 # Tokendiet — read documents cheaply
@@ -34,11 +34,15 @@ the lean text-only version, and reports what was saved. Supports **PDF, HTML fil
    If it's missing, tell the user to install it (see the repo's `docs/getting-started.md`)
    and stop — do not fall back to reading the PDF natively without telling them.
 
-2. **Convert, asking for a JSON report** (works for a PDF, an `.html` file, or a URL):
+2. **Convert, asking for a JSON report** (PDF, `.html` file, URL, or image):
    ```bash
    tokendiet convert "<path/to/file.pdf>" --report json
    tokendiet convert "https://example.com/article" --report json
+   tokendiet convert "<path/to/scan.png>" --report json   # needs: pip install 'tokendiet[ocr]'
    ```
+   For images, if the report errors that OCR isn't installed, tell the user to
+   `pip install 'tokendiet[ocr]'`. If `warnings` says no text was found, it's likely a photo,
+   not a document — offer to let Claude view it natively instead.
    The JSON includes `output` (the `.md` path), `saved_tokens`, `pct_saved`, and
    `dollar_savings`. If `warnings` mentions a scanned/image-only PDF, **stop and tell the
    user** — the Markdown will be near-empty; offer to read the PDF natively instead.

@@ -29,6 +29,18 @@ def text_pdf(tmp_path: Path) -> Path:
 
 
 @pytest.fixture
+def png_image(tmp_path: Path) -> Path:
+    """A PNG rendered from a text page — a document image for OCR."""
+    path = tmp_path / "img.png"
+    doc = pymupdf.open()
+    page = doc.new_page()
+    page.insert_textbox(pymupdf.Rect(60, 60, 535, 780), "Tokendiet OCR. " + _LOREM * 2, fontsize=15)
+    page.get_pixmap(dpi=150).save(path)
+    doc.close()
+    return path
+
+
+@pytest.fixture
 def scanned_pdf(tmp_path: Path) -> Path:
     """An image-only PDF with no real text layer (simulates a scan)."""
     path = tmp_path / "scanned.pdf"

@@ -11,8 +11,26 @@ Markdown.** A format earns support only if it *genuinely* saves token-$ against 
 | **PDF** | Extracted text **+ a rendered image of every page** | ~73–81% |
 | **HTML file** | Raw markup: tags, attributes, inline scripts/styles | ~71% |
 | **URL (web page)** | Same as HTML, fetched live | ~85% (real Wikipedia article, main-content extraction) |
+| **Image** (PNG/JPG/…) | The image tokens Claude pays to *see* it | ~71% (verified, OCR; needs `pip install 'tokendiet[ocr]'`) |
 
 Full, reproducible numbers: [`../benchmarks/RESULTS.md`](../benchmarks/RESULTS.md).
+
+## Why Markdown (not base64, binary, LaTeX, …)?
+
+We measured every plausible target encoding across inputs (`benchmarks/format_compare.py`):
+
+| Encoding | vs Markdown | Verdict |
+|---|---|---|
+| **Markdown** | 1× | **Right container** — near-minimal *and* keeps structure/links |
+| Plain text | ~0.9–1.0× (prose); 0.5× on link-heavy HTML | Marginal, and only cheaper by *dropping* links/tables. Optional. |
+| base64 / binary | **7×–360× worse** | Encoding bytes as text *inflates* tokens and the model can't read it. Hard no. |
+| LaTeX | more than Markdown for prose | Only compact for **math**; belongs *inside* Markdown, not as the container. |
+| HTML / JSON | more than Markdown | More markup per unit of content. |
+
+**Conclusion:** Markdown is the right target. The real savings come from the **per-input
+extractor** (text layer for PDF, main-content for HTML, OCR for images, transcript for video) —
+all producing Markdown. LaTeX (math) and CSV (tables) are *embeddings within* Markdown, not
+replacements. Reproduce: `python benchmarks/format_compare.py`.
 
 ## Deliberately **not** supported: DOCX, XLSX, PPTX
 

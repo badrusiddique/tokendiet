@@ -1,6 +1,6 @@
 """Document -> Markdown conversion engine.
 
-v0.1 added PDF (PyMuPDF); v0.2 adds HTML (local files and URLs).
+v0.1 added PDF (PyMuPDF); v0.2 HTML (files + URLs); v0.5 images (OCR).
 
 A backend is a function ``(Path) -> ConversionResult`` registered by extension.
 Each backend is responsible for computing its own *native cost* — the tokens
@@ -8,6 +8,7 @@ Claude would spend without conversion — because that cost is format-specific:
 
 * **PDF**: extracted text tokens **plus** a rendered image of every page.
 * **HTML**: the raw markup tokens (tags, attributes, scripts, styles). No images.
+* **Image**: the image tokens Claude pays to *see* it; OCR'd text replaces them.
 
 The reporter just assembles these into a savings report.
 """
@@ -19,7 +20,7 @@ from collections.abc import Callable
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from .tokens import count_text_tokens, page_image_tokens
+from .tokens import count_text_tokens, image_tokens, page_image_tokens
 
 try:  # PyMuPDF exposes both names depending on version
     import pymupdf  # type: ignore
@@ -41,6 +42,10 @@ class EncryptedPDFError(TokendietError):
 
 class FetchError(TokendietError):
     """A URL could not be fetched."""
+
+
+class OCRNotInstalledError(TokendietError):
+    """Image conversion needs the optional OCR engine."""
 
 
 @dataclass
@@ -139,11 +144,66 @@ def _convert_url(url: str) -> ConversionResult:
     return _build_html_result(url, raw)
 
 
+# --- Image (OCR) ------------------------------------------------------------
+_ocr_engine = None
+
+
+def _get_ocr():
+    """Lazily build and cache the RapidOCR engine (loads bundled models once)."""
+    global _ocr_engine
+    if _ocr_engine is None:
+        try:
+            from rapidocr_onnxruntime import RapidOCR
+        except ImportError as exc:
+            raise OCRNotInstalledError(
+                "Image OCR needs the optional engine: pip install 'tokendiet[ocr]'"
+            ) from exc
+        _ocr_engine = RapidOCR()
+    return _ocr_engine
+
+
+def _convert_image(path: Path) -> ConversionResult:
+    ocr = _get_ocr()  # raises OCRNotInstalledError if the extra is missing
+    try:
+        pix = pymupdf.Pixmap(str(path))
+        width, height = pix.width, pix.height
+    except Exception as exc:
+        raise TokendietError(f"Could not open image: {exc}") from exc
+
+    result, _ = ocr(str(path))
+    lines = [row[1] for row in result] if result else []
+    markdown = "\n".join(line for line in lines if line.strip()).strip() + "\n"
+
+    warnings: list[str] = []
+    if len(markdown.strip()) < 10:
+        warnings.append(
+            "No text detected — this image may be a photo, not a document. "
+            "Let Claude see it natively instead."
+        )
+    # Native image cost: the tokens Claude pays to render/see the image. The win
+    # is replacing those with the OCR'd text.
+    return ConversionResult(
+        source=str(path),
+        markdown=markdown,
+        before_text_tokens=0,
+        before_image_tokens=image_tokens(width, height),
+        pages=1,
+        warnings=warnings,
+    )
+
+
 # --- Registry / entry point -------------------------------------------------
 _BACKENDS: dict[str, Callable[[Path], ConversionResult]] = {
     ".pdf": _convert_pdf,
     ".html": _convert_html_file,
     ".htm": _convert_html_file,
+    ".png": _convert_image,
+    ".jpg": _convert_image,
+    ".jpeg": _convert_image,
+    ".webp": _convert_image,
+    ".bmp": _convert_image,
+    ".tif": _convert_image,
+    ".tiff": _convert_image,
 }
 
 

@@ -39,14 +39,15 @@ git clone https://github.com/badrusiddique/tokendiet
 cd tokendiet
 uv tool install .          # or: pipx install .   /   pip install .
 
-# 2. Convert — PDF, HTML, or a URL
+# 2. Convert — PDF, HTML, a URL, or an image
 tokendiet convert report.pdf                       # writes report.md + prints savings
 tokendiet convert page.html --report json          # machine-readable report
 tokendiet convert https://en.wikipedia.org/wiki/Markdown   # fetch + convert a web page
+tokendiet convert scan.png                         # OCR an image (needs the ocr extra)
 tokendiet convert report.pdf --stdout --quiet > report.md
 ```
 
-That's it. No GPU, no cloud API, no account.
+For image OCR, install the optional engine: `pip install 'tokendiet[ocr]'` (CPU-only, models bundled). Otherwise — no GPU, no cloud API, no account.
 
 ## Benchmarks
 
@@ -72,6 +73,8 @@ python benchmarks/run.py            # writes benchmarks/RESULTS.md
 
 For **PDF** the savings come from eliminating per-page image tokens; for **HTML** from shedding markup (tags, attributes, inline scripts/styles). Both are the real mechanism, not an artifact. See [`benchmarks/RESULTS.md`](benchmarks/RESULTS.md) for the full method and caveats.
 
+**Images** (with the `ocr` extra): sending a page as an image costs ~2,317 tokens; OCR'd Markdown is ~665 — **~71% saved**, verified with a real OCR engine. **Why Markdown and not base64/LaTeX/plain text?** We measured — base64 is 7–360× *worse*; Markdown is the right container. Details: [docs/format-support.md](docs/format-support.md#why-markdown-not-base64-binary-latex-).
+
 ## How it works
 
 ```
@@ -84,7 +87,7 @@ For **PDF** the savings come from eliminating per-page image tokens; for **HTML*
                  └──────────────────────────────────────────┘
 ```
 
-Claude then reads `your.md` instead of `your.pdf`, paying for text only. **HTML files and URLs** follow the same path: Tokendiet extracts the main content (via `trafilatura`, falling back to a full strip-and-convert when no article body is found) and emits clean Markdown — shedding nav, sidebars, footers, scripts, and styles. The native baseline there is the raw markup, not page images.
+Claude then reads `your.md` instead of `your.pdf`, paying for text only. **HTML files and URLs** follow the same path: Tokendiet extracts the main content (via `trafilatura`, falling back to a full strip-and-convert when no article body is found) and emits clean Markdown — shedding nav, sidebars, footers, scripts, and styles. The native baseline there is the raw markup, not page images. **Images** (with the `ocr` extra) are OCR'd to text — replacing the image tokens Claude would pay to *see* the page. Different input, same destination: lean Markdown.
 
 ## Use as a Claude skill
 
@@ -103,7 +106,7 @@ Tokendiet is the wrong tool when the **visuals** are the point:
 
 | | Tokendiet | [MarkItDown](https://github.com/microsoft/markitdown) | Plain PDF→MD skills |
 |---|---|---|---|
-| PDF / HTML / URL → Markdown | ✅ | ✅ / ✅ / ❌ | PDF only |
+| PDF / HTML / URL / image → Markdown | ✅ | ✅ / ✅ / ❌ / ✅ | PDF only |
 | **Measured token-$ savings report** | ✅ | ❌ | ❌ |
 | Reproducible benchmark in-repo | ✅ | ❌ | ❌ |
 | Scanned/visual-loss warnings | ✅ | partial | ❌ |
@@ -119,7 +122,7 @@ Tokendiet isn't trying to out-parse MarkItDown — it's the one that **shows you
 
 **What about DOCX / PPTX / XLSX?** **Deliberately not supported** — we measured, and they don't save tokens. Office files have no expensive native form (Claude doesn't image them like PDFs, and their text extraction is already Markdown-sized), so converting them is equal or *larger*. We won't ship a feature that doesn't deliver on the promise. Full data and the reproducible probe: [docs/format-support.md](docs/format-support.md). For convenience conversion, use [MarkItDown](https://github.com/microsoft/markitdown).
 
-**Roadmap?** PDF (v0.1 ✓) → HTML + URLs (v0.2 ✓) → Office investigated & excluded with data (v0.3 ✓) → main-content extraction, 85% on a live Wikipedia page (v0.4 ✓) → images-via-OCR (benchmark-gated). See [docs/ROADMAP.md](docs/ROADMAP.md).
+**Roadmap?** PDF (v0.1 ✓) → HTML + URLs (v0.2 ✓) → Office investigated & excluded with data (v0.3 ✓) → main-content extraction, 85% on Wikipedia (v0.4 ✓) → images via OCR, 71% verified (v0.5 ✓) → video → transcript (the 567× win, needs ASR). See [docs/ROADMAP.md](docs/ROADMAP.md).
 
 ## License
 

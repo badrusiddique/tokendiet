@@ -11,6 +11,7 @@ Anthropic's own docs.
 - **v0.2** HTML files + URLs
 - **v0.3** Office investigated & excluded with data ([format-support.md](format-support.md))
 - **v0.4** Main-content extraction for HTML (trafilatura) + ground-truth tool + this roadmap
+- **v0.5** Image → Markdown via OCR (optional `[ocr]` extra) + format-comparison evidence
 
 ## Shipped in v0.4
 
@@ -58,12 +59,13 @@ onnxruntime has no Linux wheel below cp311 — the reason the floor is 3.11). Ev
 `pymupdf4llm` below the layout-engine version, or swapping to a lighter PDF backend, to drop
 ~100 MB of deps and lower the Python floor. Re-benchmark PDF output before switching.
 
-## P2 — situational
+## P2 — next big input
 
-### 7. Images (PNG/JPG/scans) → Markdown via OCR
-The one remaining format that fits the thesis: an image costs image tokens like a PDF page, so
-OCR'd text eliminates them. Needs a local OCR engine (tesseract via `pytesseract`, or
-`rapidocr-onnxruntime` — onnxruntime is already pulled in transitively). Benchmark-gate before shipping.
+### 7. Video → transcript (Markdown) — **the 567× win**
+By far the largest saving measured: 180 video frames as images ≈ 332k tokens vs a ~585-token
+transcript. Needs a Whisper-class ASR engine (heavy, slow on CPU) and stretches "document
+converter" toward media — so it's opt-in and gated on a real benchmark. The biggest prize on
+the board.
 
 ### 8. Optional Jina ReaderLM backend for HTML — est. +5–10% quality over trafilatura
 ML-based HTML→Markdown; higher fidelity but ~100× slower and heavier. Opt-in only.
