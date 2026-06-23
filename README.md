@@ -55,11 +55,13 @@ Honest, reproducible, run on your own machine — **no borrowed marketing number
 | Document | Type | Native (tok) | Markdown (tok) | Saved | % |
 |---|---|--:|--:|--:|--:|
 | Real research paper (arXiv 1706.03762) | PDF, 15p | 48,830 | 10,820 | 38,010 | **78%** |
-| Real Wikipedia article (live HTML) | HTML | 64,229 | 16,431 | 47,798 | **74%** |
+| Real Wikipedia article (live HTML)† | HTML | 64,235 | 16,431 | 47,804 | **74%** |
 | Prose (public-domain text) | PDF, 4p | 12,703 | 3,435 | 9,268 | **73%** |
 | Bloated article (inline CSS/JS) | HTML | 6,643 | 2,407 | 4,236 | **64%** |
 | Report with table | PDF, 2p | 5,687 | 1,053 | 4,634 | **81%** |
-| **Total** | | **138,092** | **34,146** | **103,946** | **75%** |
+| **Total** | | **138,098** | **34,146** | **103,952** | **75%** |
+
+<sub>† Live web page — exact tokens drift a little between fetches; regenerate to see current numbers.</sub>
 
 Reproduce:
 
@@ -115,9 +117,9 @@ Tokendiet isn't trying to out-parse MarkItDown — it's the one that **shows you
 
 **Are the numbers exact?** They're labelled **estimates** (tiktoken proxy + documented image heuristic). For exact figures, validate against Anthropic's `count_tokens` API; the offline estimate is designed to be close and conservative.
 
-**What about DOCX / PPTX / XLSX?** Coming in later versions — but **only** formats our benchmark proves actually save token-$. Formats that don't will be documented as skipped, not shipped for show. See the [CHANGELOG](CHANGELOG.md).
+**What about DOCX / PPTX / XLSX?** **Deliberately not supported** — we measured, and they don't save tokens. Office files have no expensive native form (Claude doesn't image them like PDFs, and their text extraction is already Markdown-sized), so converting them is equal or *larger*. We won't ship a feature that doesn't deliver on the promise. Full data and the reproducible probe: [docs/format-support.md](docs/format-support.md). For convenience conversion, use [MarkItDown](https://github.com/microsoft/markitdown).
 
-**Roadmap?** PDF (v0.1 ✓) → HTML + URLs (v0.2 ✓, 74% on a live Wikipedia page) → Office/images (v0.3, benchmark-gated).
+**Roadmap?** PDF (v0.1 ✓) → HTML + URLs (v0.2 ✓, 74% on a live Wikipedia page) → Office investigated & excluded with data (v0.3 ✓) → images-via-OCR (benchmark-gated). See [docs/format-support.md](docs/format-support.md).
 
 ## License
 

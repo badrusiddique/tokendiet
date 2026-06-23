@@ -1,6 +1,6 @@
 # Benchmark results
 
-_Generated 2026-06-22 by `python benchmarks/run.py`. Numbers are **estimates** (tiktoken proxy + documented image-token heuristic); regenerate locally to reproduce._
+_Generated 2026-06-23 by `python benchmarks/run.py`. Numbers are **estimates** (tiktoken proxy + documented image-token heuristic); regenerate locally to reproduce._
 
 | Document | Pages | Native (tok) | Markdown (tok) | Saved | % saved | $ saved/call (Opus) |
 |---|--:|--:|--:|--:|--:|--:|
@@ -8,8 +8,8 @@ _Generated 2026-06-22 by `python benchmarks/run.py`. Numbers are **estimates** (
 | paper-attention.pdf | 15 | 48,830 | 10,820 | 38,010 | 78% | $0.1900 |
 | prose.pdf | 4 | 12,703 | 3,435 | 9,268 | 73% | $0.0463 |
 | report.pdf | 2 | 5,687 | 1,053 | 4,634 | 81% | $0.0232 |
-| wikipedia-markdown.html | 0 | 64,229 | 16,431 | 47,798 | 74% | $0.2390 |
-| **Total** | | **138,092** | **34,146** | **103,946** | **75%** | **$0.5197** |
+| wikipedia-markdown.html | 0 | 64,235 | 16,431 | 47,804 | 74% | $0.2390 |
+| **Total** | | **138,098** | **34,146** | **103,952** | **75%** | **$0.5198** |
 
 ## Method
 
